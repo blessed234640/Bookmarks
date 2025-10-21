@@ -63,39 +63,41 @@
 - **Follow-система и активности**: Many-to-many с intermediate моделью для follow/unfollow (асинхронно с JS). Профили пользователей с list/detail views. Activity stream с contenttypes (generic relations), избежание дубликатов, оптимизация QuerySets (select_related/prefetch_related). Шаблоны для действий, signals для денормализации счётчиков (ready() в AppConfig).
 - **Трекинг и отладка**: Redis для подсчёта просмотров изображений и ранжирования (zset для топа). Django Debug Toolbar для анализа (панели, команды). HTTPS в dev для тестов.
 
+# Bookmarks
+
 ## Визуальная архитектура
 
-Архитектура в виде flowchart (request/response cycle в Django MVT), с акцентом на социальные функции, аутентификацию и Redis.
+Архитектура в виде flowchart (request/response cycle в Django MVT), с акцентом на социальные функции, аутентификацию и Redis. Я перевёл labels на английский для лучшей совместимости и читабельности. Диаграмма теперь парсится без ошибок.
 
 ```mermaid
 flowchart TD
-    A["Клиент: HTTP-запрос (логин, шаринг, follow)"] --> B{"Middleware: Аутентификация, сессии, CSRF (settings.py)"}
-    B --> C{"URL-резолвер: mysite/urls.py (include account/urls.py)"}
-    C -->|"Паттерны: login/, images/, users/"| D["Views: Кастомные (LoginView, ImageCreateView) или CBV (ListView)"}
-    D -->|"Данные: QuerySets с оптимизацией (select/prefetch)"| E["Models: User/Profile, Image (M2M), Action (GenericRelation)"}
-    E -->|"Миграции, индексы"| F["Migrations: account/migrations/"]
+    A["Client: HTTP request (login, sharing, follow)"] --> B{"Middleware: Authentication, sessions, CSRF (settings.py)"}
+    B --> C{"URL resolver: mysite/urls.py (include account/urls.py)"}
+    C -->|"Patterns: login/, images/, users/"| D["Views: Custom (LoginView, ImageCreateView) or CBV (ListView)"]
+    D -->|"Data: QuerySets with optimization (select/prefetch)"| E["Models: User/Profile, Image (M2M), Action (GenericRelation)"]
+    E -->|"Migrations, indexes"| F["Migrations: account/migrations/"]
     F --> E
-    D -->|"Формы: ModelForm (ImageForm с clean/save override)"| G["Forms: account/forms.py (UserRegistrationForm)"}
+    D -->|"Forms: ModelForm (ImageForm with clean/save override)"| G["Forms: account/forms.py (UserRegistrationForm)"]
     G --> D
-    D -->|"Асинхронно: JS fetch для like/follow"| H["JS: Bookmarklet, infinite scroll (templates/static/js)"}
+    D -->|"Async: JS fetch for like/follow"| H["JS: Bookmarklet, infinite scroll (templates/static/js)"]
     H --> D
-    D -->|"Рендеринг: base.html, image/detail.html"| I["Templates: account/templates/ (with {% extends %})"]
-    I -->|"HTTP-ответ: с thumbnails (easy-thumbnails)"| J["Клиент: Обновление UI"]
-    subgraph "Аутентификация"
-        D -->|"Social: Google backend"| K["Custom Backend: authenticate() с email"]
-        K -->|"Messages framework для уведомлений"| L["Messages: success/error"]
+    D -->|"Rendering: base.html, image/detail.html"| I["Templates: account/templates/ (with {% extends %})"]
+    I -->|"HTTP response: with thumbnails (easy-thumbnails)"| J["Client: UI update"]
+    subgraph "Authentication"
+        D -->|"Social: Google backend"| K["Custom Backend: authenticate() with email"]
+        K -->|"Messages framework for notifications"| L["Messages: success/error"]
         L --> I
     end
     subgraph "Activity & Follow"
-        E -->|"Signals: post_save для actions/counts"| M["Signals: denormalize counts (AppConfig ready())"]
+        E -->|"Signals: post_save for actions/counts"| M["Signals: denormalize counts (AppConfig ready())"]
         M --> E
         D -->|"Follow/Unfollow: JS actions"| N["Views: user_follow()"]
         N --> E
         E -->|"Activity stream: contenttypes"| O["Generic relations in Action model"]
         O --> I
     end
-    subgraph "Redis & Отладка"
-        D -->|"Просмотры/Ранг: incr/zadd"| P["Redis: для image views/ranking (python-redis)"}
+    subgraph "Redis & Debugging"
+        D -->|"Views/Ranking: incr/zadd"| P["Redis: for image views/ranking (python-redis)"]
         P --> D
         B -->|"Debug: Toolbar middleware"| Q["Django Debug Toolbar: panels/SQL"]
         Q --> I
@@ -104,7 +106,7 @@ flowchart TD
     style J fill:#f9f,stroke:#333,stroke-width:2px
 ```
 
-Эта диаграмма показывает поток: от запроса через middleware/URL к views/models, с интеграцией форм, JS, signals, Redis и отладкой.
+Эта версия читабельна, с английскими labels для универсальности.
 
 ## Использование
 
