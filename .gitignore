@@ -1,0 +1,53 @@
+# Django/Python basics
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+*.db
+db.sqlite3
+media/
+staticfiles/
+*.log
+*.pot
+*.egg-info/
+.Python
+build/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+.installed.cfg
+*.egg
+
+# Virtual environments
+env/
+.venv/
+venv/
+ENV/
+
+# IDE/Editors
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Sensitive/local files
+*.crt
+*.key
+local_settings.py
+secrets.py
+.env
+
+# Media/images (your "media/images/2025" folder if it's generated)
+media/
+
+# Migrations if you don't want all (but usually keep them)
+# migrations/__init__.py  # Uncomment if needed
