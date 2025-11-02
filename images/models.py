@@ -2,6 +2,8 @@ from django.conf import settings
 from django.db import models
 from django.urls import reverse 
 from django. utils.text import slugify
+from slugify import slugify  # Импортируем из python-slugify
+
 
 
 
@@ -34,8 +36,14 @@ class Image(models.Model):
         return self.title
 
     def save(self, *args, **kwargs):
+        if not self.slug and self.title:
+            # Используем python-slugify с поддержкой кириллицы
+            self.slug = slugify(self.title, allow_unicode=True)
+        
+        # Если slug все еще пустой (например, title был пустым)
         if not self.slug:
-            self.slug = slugify(self.title)
+            self.slug = f"image-{self.id}" if self.id else "image"
+        
         super().save(*args, **kwargs)
 
     def get_absolute_url(self):
